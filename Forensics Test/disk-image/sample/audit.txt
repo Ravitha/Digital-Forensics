@@ -1,0 +1,17 @@
+
+Scalpel version 1.60 audit file
+Started at Tue Mar  7 11:47:07 2017
+Command line:
+scalpel -c scalpel.conf -o /media/sf_Forensics/Forensics Test/disk-image/sample disk-image 
+
+Output directory: /media/sf_Forensics/Forensics Test/disk-image/sample
+Configuration file: scalpel.conf
+
+Opening target "/media/sf_Forensics/Forensics Test/disk-image/disk-image"
+
+The following files were carved:
+File		  Start			Chop		Length		Extracted From
+00000000.elf      1113088		YES          984065		disk-image
+
+
+Completed at Tue Mar  7 11:47:07 2017

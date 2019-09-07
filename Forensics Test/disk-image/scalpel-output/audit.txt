@@ -1,0 +1,19 @@
+
+Scalpel version 1.60 audit file
+Started at Tue Mar  7 11:20:13 2017
+Command line:
+scalpel disk-image 
+
+Output directory: /media/sf_Forensics/Forensics Test/disk-image/scalpel-output
+Configuration file: /etc/scalpel/scalpel.conf
+
+Opening target "/media/sf_Forensics/Forensics Test/disk-image/disk-image"
+
+The following files were carved:
+File		  Start			Chop		Length		Extracted From
+ERROR: The configuration file didn't specify any file types to carve.
+(If you're using the default configuration file, you'll have to
+uncomment some of the file types.)
+
+
+Completed at Tue Mar  7 11:20:13 2017
