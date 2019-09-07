@@ -1,4 +1,4 @@
-# Digital-Forensics
+# Digital Forensics
 Materials created for digital forensics
 
 Exclusive Collection and Organization of documents related to Digital Forensics
@@ -10,4 +10,4 @@ Exclusive Collection and Organization of documents related to Digital Forensics
 | Memory Forensics | [Introduction](https://github.com/Ravitha/Digital-Forensics/blob/master/Memory%20Forensics/Memory%20Forensics.docx)<br/>[Volatility Cheat Sheet](https://github.com/Ravitha/Digital-Forensics/blob/master/Memory%20Forensics/Memory-Forensics-Cheat-Sheet-v1.pdf) | [Tool Description](https://github.com/Ravitha/Digital-Forensics/blob/master/Memory%20Forensics/Volatility.pdf)|[STUXNET Raw Image](https://github.com/Ravitha/Digital-Forensics/tree/master/Memory%20Forensics/Memory%20dumps/stuxnet.vmem/__MACOSX)|
 | Network Forensics | [Preliminary Ques](https://github.com/Ravitha/Digital-Forensics/blob/master/Network%20Forensics/Ques.docx)<br/>[Few More Challenges](https://github.com/Ravitha/Digital-Forensics/blob/master/Network%20Forensics/Forensics-challenges.docx)|[Wireshark Tutorial](https://github.com/Ravitha/Digital-Forensics/blob/master/Network%20Forensics/Wireshark%20QuickStart%20Guide.pdf)|[PCAP Files](https://github.com/Ravitha/Digital-Forensics/tree/master/Network%20Forensics/pcap)| 
 | Browser Forensics | [Parsing Details of Browser](https://github.com/Ravitha/Digital-Forensics/blob/master/Browser%20Forensics/Browser%20and%20Internet%20Forensics.docx) | |[Browser Parser](https://github.com/Ravitha/Digital-Forensics/tree/master/browsinghistoryview) |
-| Registry Forensics | []
+| Registry Forensics | [RegRipper](https://github.com/Ravitha/Digital-Forensics/blob/master/Registry%20Analysis/Windows%20Registry%20analysis.docx) |[CheatSheet](https://github.com/Ravitha/Digital-Forensics/blob/master/Registry%20Analysis/Cheatsheet.pdf)| - |
