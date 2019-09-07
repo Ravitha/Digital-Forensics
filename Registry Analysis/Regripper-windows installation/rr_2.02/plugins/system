@@ -1,0 +1,15 @@
+#-------------------------------------
+# System
+compname
+shutdown
+timezone
+termserv
+mountdev
+network 
+nic_mst2
+services
+fw_config
+usbstor
+devclass
+ide
+shares
