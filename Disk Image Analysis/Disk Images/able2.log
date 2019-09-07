@@ -1,0 +1,121 @@
+Sun Aug 10 19:41:52 EDT 2003
+
+Case Number: PROACTIVE
+
+Barry J. Grundy
+Special Agent
+NASA OIG CCD
+GSFC Maryland
+(301)286-3358
+bgrundy@imx.hq.nasa.gov
+
+Subject computer contact information: 
+***Practice Disk***
+Hostname "able2"
+
+Sytem was compromised
+and used to transfer 
+illicit files
+*******************
+
+
+#################################################################
+Image acquisition of able2: 
+
+Kernel output for SUBJECT disk: 
+
+    ide1: BM-DMA at 0xa808-0xa80f, BIOS settings: hdc:DMA, hdd:DMA
+hdd: Maxtor 7345 AT, ATA DISK drive
+hdd: 675450 sectors (346 MB) w/64KiB Cache, CHS=790/15/57
+
+Hdparm output for SUBJECT disk: 
+
+/dev/hdd:
+
+ATA device, with non-removable media
+	Model Number:       Maxtor 7345 AT                          
+	Serial Number:      D50PCESS            
+	Firmware Revision:  8A5H2E65
+Standards:
+	Likely used: 1
+Configuration:
+	hard sectored
+	not MFM encoded 
+	head switch time > 15us
+	fixed drive
+	disk xfer rate > 5Mbs, <= 10Mbs
+	format speed tolerance gap reqd
+	Logical		max	current
+	cylinders	790	790
+	heads		15	15
+	sectors/track	57	57
+	--
+	bytes/track: 36366	bytes/sector: 638
+	CHS current addressable sectors:     675450
+	LBA    user addressable sectors:          0
+	device size with M = 1024*1024:         329 MBytes
+	device size with M = 1000*1000:         345 MBytes 
+Capabilities:
+	no IORDY
+	Buffer type: 0003: dual port, multi-sector with read caching ability
+	Buffer size: 64.0kB	bytes avail on r/w long: 11
+	Can perform double-word IO
+	R/W multiple sector transfer: Max = 32	Current = 32
+	DMA: sdma0 sdma1 sdma2 *mdma0 
+	PIO: pio0 pio1 pio2 
+
+#################################################################
+fdisk output for SUBJECT disk: 
+
+Disk /dev/hdd: 345 MB, 345830400 bytes
+15 heads, 57 sectors/track, 790 cylinders
+Units = cylinders of 855 * 512 = 437760 bytes
+
+   Device Boot      Start         End      Blocks   Id  System
+/dev/hdd1               1          12        5101+  83  Linux
+/dev/hdd2              13         132       51300   83  Linux
+/dev/hdd3             133         209       32917+  82  Linux swap
+/dev/hdd4             210         790      248377+  83  Linux
+
+#################################################################
+sfdisk output for SUBJECT disk: 
+
+Disk /dev/hdd: 790 cylinders, 15 heads, 57 sectors/track
+Units = sectors of 512 bytes, counting from 0
+
+   Device Boot    Start       End   #sectors  Id  System
+/dev/hdd1            57     10259      10203  83  Linux
+/dev/hdd2         10260    112859     102600  83  Linux
+/dev/hdd3        112860    178694      65835  82  Linux swap
+/dev/hdd4        178695    675449     496755  83  Linux
+
+#################################################################
+Partition identification: 
+/dev/hdd:  x86 boot sector
+/dev/hdd1: Linux rev 1.0 ext2 filesystem data (mounted or unclean)
+/dev/hdd2: Linux rev 1.0 ext2 filesystem data (mounted or unclean)
+/dev/hdd3: Linux/i386 swap file (new style)
+/dev/hdd4: Linux rev 1.0 ext2 filesystem data (mounted or unclean)
+
+#################################################################
+Sha1sum of the SUBJECT disk: 
+2d0af55e931f4ab2135606e941ccc74785e4926d  hdd
+
+#################################################################
+DD output: 
+675450+0 records in
+675450+0 records out
+#################################################################
+Sha1sum of the dd image: 
+
+2d0af55e931f4ab2135606e941ccc74785e4926d  able2.dd
+
+#################################################################
+Comparison of sha1sum's: 
+2d0af55e931f4ab2135606e941ccc74785e4926d  hdd
+2d0af55e931f4ab2135606e941ccc74785e4926d  able2.dd
+
+#################################################################
+Audit file closed: Sun Aug 10 19:49:43 EDT 2003
+
+
