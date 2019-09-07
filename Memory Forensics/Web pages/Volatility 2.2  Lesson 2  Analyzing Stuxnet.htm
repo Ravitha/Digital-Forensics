@@ -1,0 +1,972 @@
+<html><head>
+
+<meta http-equiv="Content-Language" content="en-us">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="KEYWORDS" content="Computer Security, Security Tools, Exploits, Unix and Linux Tutorials, Unix and Linux Lessons, Forensics">
+<meta name="DESCRIPTION" content="ComputerSecurityStudent.com provides Unix, Linux, and Security Tool lessons for students of all ages.">
+<meta name="revisit-after" content="1 days">
+<meta name="robots" content="index,follow">
+
+<link rel="stylesheet" type="text/css" href="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/jqueryslidemenu.css">
+
+<!--[if lte IE 7]>
+<style type="text/css">
+html .jqueryslidemenu{height: 1%;} /*Holly Hack for IE7 and below*/
+</style>
+<![endif]-->
+
+<script src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/ga.js" async="" type="text/javascript"></script><script type="text/javascript" src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/jquery.js"></script>
+<script type="text/javascript" src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/jqueryslidemenu.js"></script>
+
+<!-- Google Analytics Start -->
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-32102941-1']);
+  _gaq.push(['_trackPageview']);
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+<!-- Google Analytics End -->
+
+<!-- LINK_DECLORATION:START -->
+<style type="text/css">
+A.intro:visited
+{
+color: #000000; text-decoration: none
+}
+A.intro:link
+{
+color: #000000; text-decoration: none
+}
+A.intro:active
+{
+color: #000000; text-decoration: none
+}
+A.intro:hover
+{
+color: #c00; background-color: #fff; text-decoration: underline overline
+}
+a.new{color:#ba0000}
+
+</style>
+<!-- LINK_DECLORATION:END -->
+
+<title>Volatility 2.2: Lesson 2: Analyzing Stuxnet</title>
+
+
+</head>
+
+<body>
+
+<!-- BANNER:START:v3 -->
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tbody><tr>
+<td width="80%"><b><font size="7" face="Courier New">C</font><span style="vertical-align: middle"><font color="#336699" size="6" face="Courier New">omputer</font></span><font size="7" face="Courier New">S</font><font color="#336699" size="6" face="Courier New">ecurity</font><font size="7" face="Courier New">S</font><font color="#336699" size="6" face="Courier New">tudent </font>
+<font size="7" face="Courier New">(</font><font color="#336699" size="7" face="Courier New">CSS</font><font size="7" face="Courier New">)</font></b></td>
+<td align="center" valign="bottom" width="10%">
+<font color="#000000" size="2" face="Calibri">[<a class="intro" href="https://www.computersecuritystudent.com/cgi-bin/CSS/login.pl?ACTION=LOGIN" style="text-decoration: none">Login</a>]</font></td>
+<td align="center" valign="bottom" width="10%">
+<font color="#000000" size="2" face="Calibri">[<a class="intro" href="https://www.computersecuritystudent.com/cgi-bin/CSS/display_registration.pl" style="text-decoration: none">Join Now</a>]</font></td>
+</tr>
+</tbody></table>
+<!-- BANNER:END -->
+
+<br>
+
+<hr style="border:1px dotted #808080; " color="#000000" size="1">
+
+<!-- MENU:START -->
+<div id="myslidemenu" class="jqueryslidemenu">
+<ul>
+<li><a href="https://www.computersecuritystudent.com/HOME/index.html">HOME</a></li>
+<li><a style="padding-right: 23px;" href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=b6d9f3d235bd6a03815cfd4be3a16fcd&amp;TYPE=MAIN">UNIX<img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/down.gif" class="downarrowclass" style="border:0;"></a><ul style="top: 32px; display: none; visibility: visible;">
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=0e22a63637fbb796c1614018fa1061d7&amp;TYPE=SUB">BackTrack<img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/right.gif" class="rightarrowclass" style="border:0;"></a><ul style="top: 0px; display: none; visibility: visible;">
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=3c8f3646ef6ec6e5173db6c7ea0eafc0&amp;TYPE=SUB">BackTrack 5 R1</a></li>
+</ul>
+</li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=f057ff236db091218adfe2a71591cdee&amp;TYPE=SUB">CentOS<img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/right.gif" class="rightarrowclass" style="border:0;"></a><ul style="top: 0px; display: none; visibility: visible;">
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=7886b398e2892843a930b693d9b684f6&amp;TYPE=SUB">CentOS-6.6</a></li>
+</ul>
+</li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=69384506f35e12574f8d51eabaf68f35&amp;TYPE=SUB">Fedora</a></li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=a8721fc8453e1becd0136ce16520fae9&amp;TYPE=SUB">Kali<img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/right.gif" class="rightarrowclass" style="border:0;"></a><ul style="top: 0px; display: none; visibility: visible;">
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=e3e894a0e8eaeecebcfd0e54cabe2bd1&amp;TYPE=SUB">Kali 1.0</a></li>
+</ul>
+</li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=e0fd6fb8f501204baf31002cb27a12a4&amp;TYPE=SUB">Networking</a></li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=ae40b7ee38b40268398a634026da201b&amp;TYPE=SUB">Perl Lessons</a></li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=12c65b4fa521905426485624a25a2f39&amp;TYPE=SUB">SSH</a></li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=96fc8c49186f0c2624f9a3d5cc418702&amp;TYPE=SUB">SUDO</a></li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=7ee795236e959134ca28892de0cb976b&amp;TYPE=SUB">Ubuntu<img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/right.gif" class="rightarrowclass" style="border:0;"></a><ul style="top: 0px; display: none; visibility: visible;">
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=e4de0ea494f02cc25f2d1b93ea9a8300&amp;TYPE=SUB">Ubuntu 12.04 Desktop</a></li>
+</ul>
+</li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=46db04c59cacd91e4e2be8416ce32a45&amp;TYPE=SUB">Unix 101 Lessons</a></li>
+</ul>
+</li>
+<li><a style="padding-right: 23px;" href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=cc3731e18084ca45f1d40facc6d9cfc4&amp;TYPE=MAIN">WINDOWS<img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/down.gif" class="downarrowclass" style="border:0;"></a><ul style="top: 32px; display: none; visibility: visible; left: 0px; width: 211px;">
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=e206d97ad07df84e9779729dc29127e9&amp;TYPE=SUB">Damn Vulnerable Windows<img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/right.gif" class="rightarrowclass" style="border:0;"></a><ul style="top: 0px; display: none; visibility: visible;">
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=33387437c3bdb50690d97c9cae3ca22d&amp;TYPE=SUB">W7-SP1 IE8</a></li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=f8bccdef83ba855aae0064bb2ba8d3a2&amp;TYPE=SUB">WXP-SP2 IE6</a></li>
+</ul>
+</li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=de776f41d57206a9ac527b3abf500e9a&amp;TYPE=SUB">Windows 2008 Server</a></li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=eb84da73ce6ddedf9497d3d5b30cda70&amp;TYPE=SUB">Windows 7</a></li>
+</ul>
+</li>
+<li><a style="padding-right: 23px;" href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=a6dc2e7576fdcb4eba1d6ab893e01a01&amp;TYPE=MAIN">SECURITY TOOLS<img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/down.gif" class="downarrowclass" style="border:0;"></a><ul style="top: 32px; display: none; visibility: visible; left: 0px; width: 211px;">
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=51ebad07881d2a38f0fc033ce0d52d1b&amp;TYPE=SUB">Trojan Horse Creation</a></li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=e4473c2874fa83deb0893c853ed73e62&amp;TYPE=SUB">Damn Vulnerable Linux</a></li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=c46ad23afcb8f4ce26cbbeb9548f86f1&amp;TYPE=SUB">Damn Vulnerable Web App<img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/right.gif" class="rightarrowclass" style="border:0;"></a><ul style="top: 0px; display: none; visibility: visible; left: 211px; width: 211px;">
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=688b0913be93a4d95daed400990c4745&amp;TYPE=SUB">DVWA v1.0.7</a></li>
+</ul>
+</li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=cdd36f56d4adae17549f9f2e542c3b60&amp;TYPE=SUB">Metasploitable Project<img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/right.gif" class="rightarrowclass" style="border:0;"></a><ul style="top: 0px; display: none; visibility: visible; left: 211px; width: 211px;">
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=f213c73c216e2231c8f0d65f3d93ac18&amp;TYPE=SUB">Exploits</a></li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=1aa142ddb242dc0c75317d2884e3d547&amp;TYPE=SUB">Forensics</a></li>
+</ul>
+</li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=ed11da76e10e2f38d97434b7033e9aec&amp;TYPE=SUB">Mutillidae Project<img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/right.gif" class="rightarrowclass" style="border:0;"></a><ul style="top: 0px; display: none; visibility: visible; left: 211px; width: 211px;">
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=f10d6dc6c6c21a10f3aaf29a7ee18eca&amp;TYPE=SUB">Mutillidae 2.5.11</a></li>
+</ul>
+</li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=14a85a58bdc48272e2f146f391530d03&amp;TYPE=SUB">Metasploit</a></li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=f4028b763c481aac40e745b12258ba54&amp;TYPE=SUB">NESSUS</a></li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=2705e21148a5f53aa40d9f5d9a8768f1&amp;TYPE=SUB">NMAP</a></li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=c1faa5cb5a4453007056d58f6cffeeb1&amp;TYPE=SUB">PASSWORD CRACKING</a></li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=fd73a0d2fa81f91698f898261f8ed339&amp;TYPE=SUB">Sniffing Techniques</a></li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=dd2ef3e00e7ae935c9da62c127f46cc0&amp;TYPE=SUB">SQL INJECTION</a></li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=50f8cee3337b09b33a3a6cd615e9bb07&amp;TYPE=SUB">Wireless Cracking</a></li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=c7ff95b9e1a1997ab711370d2970a198&amp;TYPE=SUB">bWAPP<img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/right.gif" class="rightarrowclass" style="border:0;"></a><ul style="top: 0px; display: none; visibility: visible;">
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=c3db19940fb6cc29e8f24a9985910bc5&amp;TYPE=SUB">bWAPP v2.2</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a style="padding-right: 23px;" href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=310ac205e9fd07c189cdc417fb336a74&amp;TYPE=MAIN">FORENSICS<img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/down.gif" class="downarrowclass" style="border:0;"></a><ul style="top: 32px; display: block; visibility: visible; left: 0px; width: 211px; overflow: hidden; height: 1px;">
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=8aea8fe651f000efa17d6d9c780a8978&amp;TYPE=SUB">Autopsy</a></li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=78fa628d52106e12156e8f2367f5f663&amp;TYPE=SUB">CheckSum</a></li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=df5eb3b314872aab2619fbf32a5ee412&amp;TYPE=SUB">FTK<img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/right.gif" class="rightarrowclass" style="border:0;"></a><ul style="top: 0px; display: none; visibility: visible; left: 211px; width: 211px;">
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=f88303d166c9509f67f18093fdbcf8f9&amp;TYPE=SUB">FTK Imager<img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/right.gif" class="rightarrowclass" style="border:0;"></a><ul style="top: 0px; display: none; visibility: visible;">
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=2cee8cde7f7c61087884a9ef12df1738&amp;TYPE=SUB">Imager 3.1.x</a></li>
+</ul>
+</li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=70f036d2e33ed5904a70135fd3483af7&amp;TYPE=SUB">FTK Imager Lite<img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/right.gif" class="rightarrowclass" style="border:0;"></a><ul style="top: 0px; display: none; visibility: visible;">
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=8feb058c680fa7c59830ce072aff2e4b&amp;TYPE=SUB">Imager Lite 3.1.1</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=fbc9be76db6e2c112f6338311881161a&amp;TYPE=SUB">File Recovery<img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/right.gif" class="rightarrowclass" style="border:0;"></a><ul style="top: 0px; display: none; visibility: visible; left: 211px; width: 211px;">
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=795afd77193e49caa5f63598e7f894ac&amp;TYPE=SUB">Foremost</a></li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=0961fa424a83728fad37dacf137f895e&amp;TYPE=SUB">Recuva</a></li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=92d61edb00c25260d3aa0dbf7e1da069&amp;TYPE=SUB">File Scavenger</a></li>
+</ul>
+</li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=39ad13caf74455a39dde670f154e2bee&amp;TYPE=SUB">HELIX</a></li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=bdc2e3fdc025cfc7b4f9121a41552db1&amp;TYPE=SUB">Data Hiding Techniques</a></li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=1861b020a4e86e32185403f109866cf4&amp;TYPE=SUB">Hiren's BootCD</a></li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=2da1ea9c858ff5587225583926f03034&amp;TYPE=SUB">Knoppix</a></li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=52dd64ff3771ab8da2e4b689eb5beaab&amp;TYPE=SUB">Lime Forensics</a></li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=d1a4c957478e98a0e71f95bcba07461f&amp;TYPE=SUB">LosBuntu</a></li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=0ecc2a5b5b1a786ad50fd0f4de0bd1e5&amp;TYPE=SUB">Password Clearing</a></li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=429bb3bf12398c25e08e63e0a5eadfb7&amp;TYPE=SUB">Process Tools</a></li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=3188446a5b076c4273f7e26fccaf64c2&amp;TYPE=SUB">Steganography</a></li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=953bb3e76b0612cc6942d8a31779bdfe&amp;TYPE=SUB">Volatility Framework<img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/right.gif" class="rightarrowclass" style="border:0;"></a><ul style="top: 0px; display: none; visibility: visible;">
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=4d63d951d21709814bb7a80c0f9a5760&amp;TYPE=SUB">Volatility 2.0 Framework</a></li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=82f1fe34f85e7cf2c306b5f449a8ab8e&amp;TYPE=SUB">Volatility 2.2 Framework</a></li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=3ac31b5591c7f5e38626039c496daf6a&amp;TYPE=SUB">Volatility 2.3.1</a></li>
+</ul>
+</li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=bb8d2dc8c39db146ec9bf761639e7bc3&amp;TYPE=SUB">Web Browsing</a></li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=05da1ecbe7f6cb1161f131733956ace0&amp;TYPE=SUB">Windows Tools<img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/right.gif" class="rightarrowclass" style="border:0;"></a><ul style="top: 0px; display: none; visibility: visible;">
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=0fd92d922a53c4b6098224c7904d682a&amp;TYPE=SUB">ISO Tools<img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/right.gif" class="rightarrowclass" style="border:0;"></a><ul style="top: 0px; display: none; visibility: visible;">
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=17d4a03de1781185a8f4208b42fa49d0&amp;TYPE=SUB">DoISO</a></li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=ad28e0c40fff2b0783c3a8bb1120befd&amp;TYPE=SUB">WinISO</a></li>
+</ul>
+</li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=59901f794aea4217631dcfab7534bc11&amp;TYPE=SUB">Audit Tools</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a style="padding-right: 23px;" href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=ca9d45f2e434f7e3b7d6536fe1fc4c37&amp;TYPE=MAIN">SHOPPING<img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/down.gif" class="downarrowclass" style="border:0;"></a><ul style="top: 32px; display: none; visibility: visible; left: 0px; width: 211px;">
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=2dfb1811803031edb44a53a2a5a9eaae&amp;TYPE=SUB">Clothing<img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/right.gif" class="rightarrowclass" style="border:0;"></a><ul style="top: 0px; display: none; visibility: visible; left: 211px; width: 211px;">
+<li><a href="https://www.computersecuritystudent.com/ACCESSORIES/Clothing/INFANTS_SHIRTS/index.html">Infant Hacker T-Shirts</a></li>
+<li><a href="https://www.computersecuritystudent.com/ACCESSORIES/Clothing/KIDS_SHIRTS/index.html">Kid's and Childrens Hacker T-Shirts</a></li>
+<li><a href="https://www.computersecuritystudent.com/ACCESSORIES/Clothing/MENS_SHIRTS/index.html">Men's Hacker T-Shirts</a></li>
+<li><a href="https://www.computersecuritystudent.com/ACCESSORIES/Clothing/WOMENS_SHIRTS/index.html">Women's Hacker T-Shirts</a></li>
+</ul>
+</li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=4566b6fecc43f4a3bd110169c1dae384&amp;TYPE=SUB">Hats &amp; Caps<img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/right.gif" class="rightarrowclass" style="border:0;"></a><ul style="top: 0px; display: none; visibility: visible;">
+<li><a href="https://www.computersecuritystudent.com/ACCESSORIES/Hats/HACKER_HATS/index.html">Hacker Hats</a></li>
+</ul>
+</li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=d125c8e9aff503a293afb71602222289&amp;TYPE=SUB">Magnets<img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/right.gif" class="rightarrowclass" style="border:0;"></a><ul style="top: 0px; display: none; visibility: visible;">
+<li><a href="https://www.computersecuritystudent.com/ACCESSORIES/Magnets/HACKER/index.html">Hacker Magnets</a></li>
+</ul>
+</li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=2408c4b920b66c4448997b3d8cc54f9e&amp;TYPE=SUB">Coffee Mugs<img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/right.gif" class="rightarrowclass" style="border:0;"></a><ul style="top: 0px; display: none; visibility: visible;">
+<li><a href="https://www.computersecuritystudent.com/ACCESSORIES/Mugs/HACKER_MUGS/index.html">Hacker Mugs &amp; Cups</a></li>
+</ul>
+</li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=7df5a02c035e139a295d23bad6e7ae05&amp;TYPE=SUB">Posters<img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/right.gif" class="rightarrowclass" style="border:0;"></a><ul style="top: 0px; display: none; visibility: visible;">
+<li><a href="https://www.computersecuritystudent.com/ACCESSORIES/Posters/HACKER/index.html">Hacker Posters</a></li>
+</ul>
+</li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=307abe96d5dd40f18e5ae94dcf471d21&amp;TYPE=SUB">Stickers<img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/right.gif" class="rightarrowclass" style="border:0;"></a><ul style="top: 0px; display: none; visibility: visible;">
+<li><a href="https://www.computersecuritystudent.com/ACCESSORIES/Stickers/HACKER/index.html">Hacker Stickers</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a style="padding-right: 23px;" href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=50a7c31ebfb8316c591ea09d4dc77362&amp;TYPE=MAIN">GET STARTED<img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/down.gif" class="downarrowclass" style="border:0;"></a><ul style="top: 32px; display: none; visibility: visible;">
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=2d0d88a8720ebfe2289f68a0f31e24a2&amp;TYPE=SUB">Our Curriculum</a></li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=cb0f9148dad0f4013d3464ba6f71a159&amp;TYPE=SUB">How To</a></li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=ccf7b05229ec9c40fd6e993e9922da77&amp;TYPE=SUB">Legal Agreements</a></li>
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=e46130c7775f99f412e1835eadea07c9&amp;TYPE=SUB">System Prerequisites</a></li>
+</ul>
+</li>
+<li><a style="padding-right: 23px;" href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=f67011b50a3dcf8a98ba5cb3cb338348&amp;TYPE=MAIN">CONTACT US<img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/down.gif" class="downarrowclass" style="border:0;"></a><ul style="top: 32px; display: none; visibility: visible;">
+<li><a href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=cea713e0fb9faf44e1ee834c7ca9ff03&amp;TYPE=SUB">Contact Information</a></li>
+</ul>
+</li>
+</ul>
+
+<br style="clear: left">
+</div>
+<!-- MENU:END -->
+
+<hr style="border:1px dotted #808080; " color="#000000" size="1">
+<!-- PAGE_COUNTER:START -->
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tbody><tr>
+<td width="90%"><b><font face="Courier New">|</font><font size="2" face="Courier New"><a class="intro" href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=310ac205e9fd07c189cdc417fb336a74&amp;TYPE=MAIN">FORENSICS</a></font><font color="#FF0000" size="2" face="Courier New"> &gt;&gt; </font><font size="2" face="Courier New"><a class="intro" href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=953bb3e76b0612cc6942d8a31779bdfe&amp;TYPE=SUB">Volatility Framework</a></font><font color="#FF0000" size="2" face="Courier New"> &gt;&gt; </font><font size="2" face="Courier New"><a class="intro" href="https://www.computersecuritystudent.com/cgi-bin/CSS/process_request_v3.pl?HID=82f1fe34f85e7cf2c306b5f449a8ab8e&amp;TYPE=SUB">Volatility 2.2 Framework</a></font><font color="#FF0000" size="2" face="Courier New"> &gt;&gt; </font><font size="2" face="Courier New"><a class="intro" rel="current" href="https://www.computersecuritystudent.com/FORENSICS/VOLATILITY/VOLATILITY2_2/lesson2/index.html">Current Page</a></font></b></td>
+<td align="left" width="10%"><b><font face="Courier New">|<font size="2">Views:</font>
+</font><font color="#FF0000" size="2" face="Courier New">
+
+4631</font></b></td></tr>
+</tbody></table>
+<!-- PAGE_COUNTER:END -->
+
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+	<tbody><tr>
+		<td valign="top" width="81%">
+<br>
+<h1 align="center"><b><font size="5" face="Courier New">(<font color="#FF0000">Volatility</font></font><font color="#FF0000" size="5" face="Courier New"> 
+2.2:
+</font><font size="5" face="Courier New">Lesson 2)</font></b></h1>
+<p align="center"><b><font size="4" face="Courier New">{ Analyzing Stuxnet }</font></b></p>
+		<hr style="border: 1px dotted #C0C0C0" color="#000000" size="1">
+		<table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tbody><tr>
+				<td bgcolor="#336699"><b>
+				<font color="#FFFFFF" size="4" face="Arial">Section 0. Background 
+				Information</font></b></td>
+			</tr>
+		</tbody></table>
+<ol>
+	<li><font face="Courier New">What is Stuxnet?</font><ul>
+		<li><font face="Courier New">Stuxnet is a threat targeting a specific 
+		industrial control system likely in Iran, such as a gas pipeline or 
+		power plant. The ultimate goal of Stuxnet is to sabotage that facility 
+		by reprogramming programmable logic controllers (PLCs) to operate as the 
+		attackers intend them to, most likely out of their specified boundaries. 
+		[4]</font></li>
+	</ul>
+	<br></li>
+	<li><font face="Courier New">Pre-Requisite</font><ul>
+		<li><font size="2" face="Courier New">
+		<a href="https://www.computersecuritystudent.com/FORENSICS/VOLATILITY/VOLATILITY2_2/lesson1/index.html">Volatility 2.2: Lesson 1: Installing Volatility 2.2 on BackTrack 5 R1</a></font></li>
+	</ul>
+	<br></li>
+	<li><font face="Courier New">References</font><ol>
+		<li><font size="4" face="Calibri"><b>Michael Hale</b>:&nbsp;
+		<a target="_blank" href="http://mnin.blogspot.com/2011/06/examining-stuxnets-footprint-in-memory.html">Stuxnet's Footprint in Memory with Volatility</a></font></li>
+		<li><font size="4" face="Calibri"><b>Mark Russinovich</b>:&nbsp;
+		<a target="_blank" href="http://blogs.technet.com/b/markrussinovich/archive/2011/03/30/3416253.aspx">Analyzing a Stuxnet Infection with the Sysinternals Tools, Part I</a></font></li>
+		<li><font size="4" face="Calibri"><b>Michael Hale</b>:&nbsp;
+		<a target="_blank" href="http://code.google.com/p/volatility/wiki/CommandReference">http://code.google.com/p/volatility/wiki/CommandReference</a></font></li>
+		<li><font size="4" face="Calibri"><b>Symantec's: </b>&nbsp;
+		<a target="_blank" href="http://www.symantec.com/content/en/us/enterprise/media/security_response/whitepapers/w32_stuxnet_dossier.pdf">W32.Stuxnet Dossier</a></font></li>
+	</ol><br></li>
+	<li><font face="Courier New">
+	<span style="font-weight: 700; background-color: #FFFF00">Lab Notes</span></font><ul>
+		<li><font face="Courier New">In this lab we will do the following:</font><ol>
+			<li><font face="Courier New">Download a Stuxnet memory capture.</font></li>
+			<li><font face="Courier New">Analyze a Stuxnet memory capture using 
+			the above references.</font></li>
+		</ol></li>
+	</ul><br></li>
+	<li><font face="Courier New">Legal Disclaimer</font><ul style="background-color: #DFEFFF">
+		<li><b><font face="Courier New">As a condition of your use of this Web 
+		site, you warrant to computersecuritystudent.com that you will not use 
+		this Web site for any purpose that is <font color="#FF0000">unlawful or 
+		that is prohibited</font> by these terms, conditions, and notices.</font></b></li>
+		<li><b><font face="Courier New">In accordance with UCC § 2-316, this 
+		product is provided with "no warranties, either express or implied." The 
+		information contained is provided "as-is", with "no guarantee of 
+		merchantability."</font></b></li>
+		<li><b><font face="Courier New">In addition, this is a teaching website 
+		that <font color="#FF0000">does not condone malicious behavior</font> of 
+		any kind.</font></b></li>
+		<li><b><font face="Courier New">Your are on notice, that continuing 
+		and/or using this lab outside your "own" test environment
+		<font color="#FF0000">is considered malicious and is against the law</font>.</font></b></li>
+		<li>© <font face="Courier New"><b>2013 No content replication of any 
+		kind is allowed without express written permission.</b></font></li>
+	</ul></li>
+</ol>
+		<table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tbody><tr>
+				<td bgcolor="#336699"><b>
+				<font color="#FFFFFF" size="4" face="Arial">Section 1. 
+				Login to BackTrack</font></b></td>
+			</tr>
+		</tbody></table>
+<ol>
+	<li><font face="Courier New">Start Up VMWare Player</font>
+	<ul>
+		<li><font face="Courier New"><b><font color="#ff0000">Instructions</font>:</b></font> 
+		<ol>
+			<li><font face="Courier New">Click the Start Button</font> </li>
+			<li><font face="Courier New">Type Vmplayer in the search box</font> 
+			</li>
+			<li><font face="Courier New">Click on Vmplayer </font></li>
+		</ol>
+		</li>
+		<li><img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/index_016.jpg" border="0"> </li>
+	</ul>
+	<p>&nbsp;</p></li>
+	<li><font face="Courier New">Open a Virtual Machine</font>
+	<ul>
+		<li><font face="Courier New"><b><font color="#ff0000">Instructions:</font></b></font><font color="#ff0000">
+		</font>
+		<ol>
+			<li><font face="Courier New">Click on Open a Virtual Machine</font> 
+			</li>
+		</ol>
+		</li>
+		<li><img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/index_002.jpg" border="0"> </li>
+	</ul>
+	<p>&nbsp;</p></li>
+	<li><font face="Courier New">Open the BackTrack5R1 VM</font>
+	<ul>
+		<li><font face="Courier New"><b><font color="#ff0000">Instructions:</font></b></font><font color="#ff0000">
+		</font>
+		<ol>
+			<li><font face="Courier New">Navigate to where the BackTrack5R1 VM 
+			is located</font> </li>
+			<li><font face="Courier New">Click on on the BackTrack5R1 VM</font> 
+			</li>
+			<li><font face="Courier New">Click on the Open Button</font> </li>
+		</ol>
+		</li>
+		<li><img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/index_005.jpg" border="0"> </li>
+	</ul>
+	<p>&nbsp;</p></li>
+	<li><font face="Courier New">Edit the BackTrack5R1 VM</font>
+	<ul>
+		<li><font face="Courier New"><b><font color="#ff0000">Instructions:</font></b></font><font color="#ff0000">
+		</font>
+		<ol>
+			<li><font face="Courier New">Select BackTrack5R1 VM</font> </li>
+			<li><font face="Courier New">Click Edit virtual machine settings</font> 
+			</li>
+		</ol>
+		</li>
+		<li><img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/index_009.jpg" border="0"> </li>
+	</ul>
+	<p>&nbsp;</p></li>
+	<li><font face="Courier New">Edit Virtual Machine Settings</font>
+	<ul>
+		<li><font face="Courier New"><b><font color="#ff0000">Instructions</font>:</b></font> 
+		<ol>
+			<li><font face="Courier New">Click on Network Adapter</font> </li>
+			<li><font face="Courier New">Click on the Bridged Radio button</font> 
+			</li>
+			<li><font face="Courier New">Click on the OK Button</font> </li>
+		</ol>
+		</li>
+	</ul>
+	<ul>
+		<li><img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/index_020.jpg" border="0"> </li>
+	</ul>
+	<p>&nbsp;</p></li>
+	<li><font face="Courier New">Play the BackTrack5R1 VM</font>
+	<ul>
+		<li><font face="Courier New"><b><font color="#ff0000">Instructions:</font></b></font><font color="#ff0000">
+		</font>
+		<ol>
+			<li><font face="Courier New">Click on the BackTrack5R1 VM</font> 
+			</li>
+			<li><font face="Courier New">Click on Play virtual machine</font> 
+			</li>
+		</ol>
+		</li>
+		<li><img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/index_014.jpg" border="0"> </li>
+	</ul>
+	<p>&nbsp;</p></li>
+	<li><font face="Courier New">Login to BackTrack</font>
+	<ul>
+		<li><b><font color="#ff0000" face="Courier New">Instructions:</font></b> 
+		<ol>
+			<li><font face="Courier New">Login: root</font> </li>
+			<li><font face="Courier New">Password: toor or &lt;whatever you changed 
+			it to&gt;.</font> </li>
+		</ol>
+		</li>
+		<li><img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/index_021.jpg" border="0"> </li>
+	</ul>
+	<p>&nbsp;</p></li>
+	<li><font face="Courier New">Bring up the GNOME</font>
+	<ul>
+		<li><font face="Courier New"><font color="#ff0000"><b>Instructions</b></font>:</font> 
+		<ol>
+			<li><font face="Courier New">Type startx</font> </li>
+		</ol>
+		</li>
+		<li><img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/index_017.jpg" border="0"> </li>
+	</ul>
+	<p>&nbsp;</p></li>
+</ol>
+		<table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tbody><tr>
+				<td bgcolor="#336699"><b>
+				<font color="#FFFFFF" size="4" face="Arial">Section 2. 
+				Bring up a console terminal</font></b></td>
+			</tr>
+		</tbody></table>
+<ol>
+	<li><font face="Courier New">Start up a terminal window</font>
+	<ul>
+		<li><font face="Courier New"><font color="#ff0000"><b>Instructions</b></font>:</font> 
+		<ol>
+			<li><font face="Courier New">Click on the Terminal Window</font> 
+			</li>
+		</ol>
+		</li>
+	</ul>
+	<ul>
+		<li><img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/index_015.jpg" border="0"> </li>
+	</ul>
+	<p>&nbsp;</p></li>
+	<li><font face="Courier New">Obtain the IP Address</font>
+	<ul>
+		<li><font face="Courier New"><font color="#ff0000"><b>Instructions</b></font>:</font> 
+		<ol>
+			<li><font face="Courier New">ifconfig -a</font> </li>
+		</ol>
+		</li>
+		<li><b><font color="#0000ff" face="Courier New">Note(FYI)</font></b><font face="Courier New">:</font> 
+		<ul>
+			<li><font face="Courier New">My IP address 192.168.1.108. </font>
+			</li>
+			<li><font face="Courier New">In your case, it will probably be 
+			different.</font> </li>
+		</ul>
+		</li>
+		<li><img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/index_018.jpg" border="0"></li>
+	</ul>
+	<p>&nbsp;</p></li>
+</ol>
+		<table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tbody><tr>
+				<td bgcolor="#336699"><b>
+				<font color="#FFFFFF" size="4" face="Arial">Section 3. 
+				Download a Stuxnet Image</font></b></td>
+			</tr>
+		</tbody></table>
+<ol>
+	<li><font face="Courier New">Download a Stuxnet Image</font><ul>
+		<li><b><font color="#FF0000" face="Courier New">Instructions</font></b><ol>
+			<li><font face="Courier New">cd /pentest/forensics/volatility-2.2</font></li>
+			<li><font face="Courier New">mkdir -p images/stuxnet/output</font></li>
+			<li><font face="Courier New">cd images/stuxnet/</font></li>
+			<li><font size="4" face="Calibri">wget http://malwarecookbook.googlecode.com/svn/trunk/stuxnet.vmem.zip</font></li>
+			<li><font face="Courier New">unzip stuxnet.vmem.zip</font></li>
+		</ol>
+		</li>
+		<li><img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/index_019.jpg" border="0"></li>
+	</ul>
+	<p>&nbsp;</p></li>
+</ol>
+		<table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tbody><tr>
+				<td bgcolor="#336699"><b>
+				<font color="#FFFFFF" size="4" face="Arial">Section 4. Determine 
+				Volatility Image</font></b></td>
+			</tr>
+		</tbody></table>
+<ol>
+	<li><font face="Courier New">Determine Which Profile to Use</font><ul>
+		<li><b><font color="#FF0000" face="Courier New">Instructions</font></b></li>
+		<ol>
+			<li><font face="Courier New">cd /pentest/forensics/volatility-2.2</font></li>
+			<li><font face="Courier New">chmod 700 vol.py</font><ul>
+				<li><font face="Courier New">Make vol.py executable.</font></li>
+			</ul>
+			</li>
+			<li><font face="Courier New">./vol.py imageinfo -f images/stuxnet/stuxnet.vmem</font></li>
+		</ol>
+		<li><b><font color="#0000FF" face="Courier New">Note(FYI):</font></b><font color="#0000FF"></font></li><font color="#0000FF">
+		</font>
+		<ul>
+			<li><font face="Courier New">For this image Volatility tells us to 
+			use the WinXPSP3x86 profile.</font></li>
+		</ul>
+		
+		<li><img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/index_008.jpg" border="0"></li>
+	</ul></li>
+</ol>
+<p>&nbsp;</p>
+		<table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tbody><tr>
+				<td bgcolor="#336699"><b>
+				<font color="#FFFFFF" size="4" face="Arial">Section 4. Analyze 
+				Stuxnet Process Tree</font></b></td>
+			</tr>
+		</tbody></table>
+<ol>
+	<li><font face="Courier New">Basic Stuxnet Description</font><ul>
+		<li><b><font color="#0000FF" face="Courier New">Note(FYI):</font></b><font color="#0000FF"></font></li><font color="#0000FF">
+		</font>
+		<ol>
+			<li><font face="Courier New">A normal Windows XP installation has 
+			just one instance of lsass.exe that the Winlogon process creates 
+			when the system boots. (Wininit creates it on Windows Vista and 
+			higher). </font></li>
+			<li><font face="Courier New">[The following] process tree [example] 
+			reveals that the two new lsass.exe instances were both created by 
+			services.exe [], the Service Control Manager, which implies that 
+			Stuxnet somehow got its' code into the Services.exe process. [1][2].</font></li>
+			<li><font face="Courier New">Mrxnet.sys is the driver that ... 
+			implements the rootkit that hides files, and Mrxcls.sys is a second 
+			Stuxnet driver file that launches the malware when the system boots. 
+			[1]</font></li>
+		</ol>
+		<p>&nbsp;
+	</p></ul>
+	</li>
+	<li><font face="Courier New">What is lsass.exe</font><ul>
+		<li><b><font color="#0000FF" face="Courier New">Note(FYI):</font></b><font color="#0000FF"></font></li><font color="#0000FF">
+		</font>
+		<ul>
+		<li><font face="Courier New">LSASS, or local security authority 
+		subsystem service, is a process that functions as part of the Microsoft 
+		Windows operating system. </font></li>
+		<li><font face="Courier New">LSASS is part of the process for 
+		maintaining and enforcing the security protocols on the operating 
+		system. </font></li>
+		<li><font face="Courier New">LSASS performs several important functions</font><ol>
+			<li><font face="Courier New">To ensure that the system remains free 
+			from unauthorized access</font></li>
+			<li><font face="Courier New">LSASS oversees access to a computer or 
+			server. </font></li>
+			<li><font face="Courier New">LSASS recognizes any restrictions on 
+			access to any information on the hard drive or the server.</font></li>
+			<li><font face="Courier New">LSASS makes sure that only recognized 
+			access codes or other login credentials will allow persons to 
+			interact with password protected files, directories, etc.</font></li>
+		</ol></li>
+	</ul>
+		
+	</ul>
+	<p>&nbsp;</p></li>
+	<li><font face="Courier New">Analyze Stuxnet Process Tree</font><ul>
+		<li><b><font color="#FF0000" face="Courier New">Instructions</font></b></li>
+		<ol>
+			<li><font face="Calibri">./vol.py pstree --profile=WinXPSP3x86 -f 
+			images/stuxnet/stuxnet.vmem | egrep '(services.exe|lsass.exe|winlogon.exe)' 
+			| tee images/stuxnet/output/pstree.txt</font></li>
+			<li><font face="Courier New">ls -l images/stuxnet/output/pstree.txt</font></li>
+		</ol>
+		<li><b><font color="#0000FF" face="Courier New">Note(FYI):</font></b><font color="#0000FF"></font></li><font color="#0000FF">
+		</font>
+		<ul>
+			<li><font face="Courier New">The normal Parent-Child relation</font><ul>
+				<li><font face="Courier New">winlogon.exe (624) kicks off, DATE: 
+				2010-10-29 17:08:54</font><ul>
+					<li><font face="Courier New">services.exe (668), DATE: 
+					2010-10-29 17:08:54</font></li>
+					<li><font face="Courier New">lsass.exe (680), 2010-10-29 
+					17:08:54</font></li>
+				</ul>
+				</li>
+			</ul>
+			</li>
+			<li><font face="Courier New">The Stuxnet Parent-Child relation</font><ul>
+				<li><font face="Courier New">services.exe(668) is NOT supposed 
+				to, but kicks off</font><ul>
+					<li><font face="Courier New">lsass.exe (1928), DATE: 
+					2011-06-03 04:26:55</font></li>
+					<li><font face="Courier New">lsass.exe (868), DATE: 
+					2011-06-03 04:26:55</font></li>
+				</ul>
+				</li>
+				<li><font face="Courier New">Notice these two lsass.exe 
+				processes were created 216 after winlogin.exe was started.</font></li>
+			</ul>
+			</li>
+		</ul>
+		
+		<li><img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/index.jpg" border="0"></li>
+	</ul></li>
+</ol>
+		<p>&nbsp;</p>
+		<table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tbody><tr>
+				<td bgcolor="#336699"><b>
+				<font color="#FFFFFF" size="4" face="Arial">Section 5. Analyze 
+				Sockets</font></b></td>
+			</tr>
+		</tbody></table>
+<ol>
+	<li><font face="Courier New">Analyze Sockets</font><ul>
+		<li><b><font color="#FF0000" face="Courier New">Instructions</font></b></li>
+		<ol>
+			<li><font size="4" face="Calibri">./vol.py sockets 
+			--profile=WinXPSP3x86 -f images/stuxnet/stuxnet.vmem | egrep 
+			'(Off|---|680|1928|868)' | tee images/stuxnet/output/sockets.txt</font></li>
+			<li><font size="4" face="Courier New">ls -l images/stuxnet/output/sockets.txt</font></li>
+		</ol>
+		<li><b><font color="#0000FF" face="Courier New">Note(FYI):</font></b><font color="#0000FF"></font></li><font color="#0000FF">
+		</font>
+		<ul>
+			<li><font face="Courier New">Another way that you can tell the good 
+			lsass.exe (680) processes from the bad (1928 &amp; 868) lsass.exe 
+			process is that PID 680 are bound to Port 500 and 4500, while PIDs 
+			1928 &amp; 868 are not.</font></li>
+		</ul>
+		
+		<li><img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/index_010.jpg" border="0"></li>
+	</ul></li>
+</ol>
+		<p>&nbsp;</p>
+		<table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tbody><tr>
+				<td bgcolor="#336699"><b>
+				<font color="#FFFFFF" size="4" face="Arial">Section 6. Analyze 
+				DLL's</font></b></td>
+			</tr>
+		</tbody></table>
+<ol>
+	<li><font face="Courier New">Analyze lsass dll's</font><ul>
+		<li><b><font color="#FF0000" face="Courier New">Instructions</font></b></li>
+		<ol>
+			<li><font face="Calibri">./vol.py dlllist -p <b>680</b> 
+			--profile=WinXPSP3x86 -f images/stuxnet/stuxnet.vmem 2&gt;/dev/null | 
+			wc -l</font></li>
+			<li><font face="Calibri">./vol.py dlllist -p <b>1928</b> 
+			--profile=WinXPSP3x86 -f images/stuxnet/stuxnet.vmem 2&gt;/dev/null | 
+			wc -l</font></li>
+			<li><font face="Calibri">./vol.py dlllist -p <b>868</b> 
+			--profile=WinXPSP3x86 -f images/stuxnet/stuxnet.vmem 2&gt;/dev/null | 
+			wc -l</font></li>
+			<li><font face="Calibri">./vol.py dlllist -p <b>680,1928,868</b> 
+			--profile=WinXPSP3x86 -f images/stuxnet/stuxnet.vmem &gt; images/stuxnet/output/dlllist.txt</font></li>
+			<li><font face="Calibri">ls -l images/stuxnet/output/dlllist.txt</font></li>
+		</ol>
+		<li><b><font color="#0000FF" face="Courier New">Note(FYI):</font></b><font color="#0000FF"></font></li><font color="#0000FF">
+		</font>
+		<ul>
+			<li><font face="Courier New">[A]nother suspicious characteristic of 
+			the two superfluous processes is the fact that they have very few 
+			DLLs loaded. [1][2].</font></li>
+			<li><font face="Courier New">DLLs are automatically added ... when a 
+			process call the&nbsp; LoadLibrary. [3]</font></li>
+			<li><font face="Courier New">Notice that the good PID (680) has 64 
+			DLLs attached to its' process.</font></li>
+			<li><font face="Courier New">Notice that the bad PID (1928) has 35 
+			DLLs attached to its' process.</font></li>
+			<li><font face="Courier New">Notice that the bad PID (868) has 15 
+			DLLs attached to its' process.</font></li>
+		</ul>
+		
+		<li><img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/index_004.jpg" border="0"></li>
+	</ul></li>
+</ol>
+		<p>&nbsp;</p>
+		<table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tbody><tr>
+				<td bgcolor="#336699"><b>
+				<font color="#FFFFFF" size="4" face="Arial">Section 7. Analyze 
+				Process IDs with malfind</font></b></td>
+			</tr>
+		</tbody></table>
+<ol>
+	<li><font face="Courier New">Analyze Process IDs with malfind</font><ul>
+		<li><b><font color="#FF0000" face="Courier New">Instructions</font></b></li>
+		<ol>
+			<li><font size="4" face="Calibri">./vol.py malfind -p 680 
+			--profile=WinXPSP3x86 -f images/stuxnet/stuxnet.vmem</font></li>
+			<li><font size="4" face="Calibri">./vol.py malfind -p 868 
+			--profile=WinXPSP3x86 -f images/stuxnet/stuxnet.vmem</font></li>
+			<li><font size="4" face="Calibri">./vol.py malfind -p 868,1928 
+			--profile=WinXPSP3x86 -f images/stuxnet/stuxnet.vmem &gt; images/stuxnet/output/malfind.txt</font></li>
+			<li><font size="4" face="Calibri">ls -l images/stuxnet/output/malfind.txt</font></li>
+		</ol>
+		<li><b><font color="#0000FF" face="Courier New">Note(FYI):</font></b><font color="#0000FF"></font></li><font color="#0000FF">
+		</font>
+		<ul>
+			<li><font face="Courier New">The malfind command has several 
+			purposes. You can use it to find hidden or injected code/DLLs in 
+			user mode memory, based on characteristics such as VAD tag and page 
+			permissions. [3]</font></li>
+			<li><font face="Courier New">Services.exe, Lsass.exe or Explorer.exe 
+			should not have write permission.&nbsp; </font></li>
+			<li><font face="Courier New">Notice, that PID(680) did not return 
+			any results, while PID(868 &amp; 1928) do.</font></li>
+		</ul>
+		
+		<li><img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/index_006.jpg" border="0"></li>
+	</ul></li>
+</ol>
+		<p>&nbsp;</p>
+		<table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tbody><tr>
+				<td bgcolor="#336699"><b>
+				<font color="#FFFFFF" size="4" face="Arial">Section 8. Bypassing 
+				Behavior Blocking Wheb Loading DLLs</font></b></td>
+			</tr>
+		</tbody></table>
+<ol>
+	<li><font face="Courier New">What is Address space layout randomization (ASLR)
+	</font>
+	<ul>
+		<li><b><font color="#0000FF" face="Courier New">Note(FYI):</font></b><font color="#0000FF"></font></li><font color="#0000FF">
+		</font>
+		<ul>
+			<li><font face="Courier New">Address space layout randomization (ASLR) 
+			is a <b><font color="#FF0000">computer security method</font></b> which involves randomly arranging the 
+			positions of key data areas, usually including the base of the 
+			executable and position of libraries, heap, and stack, in a 
+			process's address space.</font></li>
+		</ul>
+		<br>
+	</ul>
+	</li>
+	<li><font face="Courier New">Bypassing Behavior Blocking When Loading DLLs</font><ul>
+		<li><b><font color="#0000FF" face="Courier New">Note(FYI):</font></b><font color="#0000FF"></font></li><font color="#0000FF">
+		</font>
+		<ul>
+			<li><font face="Courier New">Whenever Stuxnet needs to load a DLL, 
+			including itself, it uses a special method designed to bypass 
+			behavior- blocking and host intrusion-protection based technologies 
+			that monitor LoadLibrary calls. 
+			<span style="background-color: #FFFF99">Stuxnet calls Load - Library with a 
+			specially crafted file name that does not exist on disk and normally 
+			causes LoadLibrary to fail. However, W32.Stuxnet has hooked 
+			Ntdll.dll to monitor for requests to load specially crafted file 
+			names</span>. These specially crafted filenames are mapped to another 
+			location instead�a location specified by W32.Stuxnet. That location 
+			is generally an area in memory where a .dll file has been decrypted 
+			and stored by the threat previously. 
+			<span style="background-color: #FFFF99">The filenames used have the 
+			pattern of KERNEL32.DLL.ASLR.[HEXADECIMAL] or SHELL32.DLL.ASLR. [HEXA 
+			- DECIMAL], where the variable [HEXADECIMAL]is a hexadecimal values</span>. 
+			[4]</font></li>
+		</ul>
+		
+	</ul>
+	<p>&nbsp;</p></li>
+	<li><font face="Courier New">Hiding DLLs</font><ul>
+		<li><b><font color="#FF0000" face="Courier New">Instructions</font></b></li>
+		<ol>
+			<li><font size="4" face="Calibri">./vol.py dlllist 
+			--profile=WinXPSP3x86 -f images/stuxnet/stuxnet.vmem | grep ASLR</font></li>
+			<li><font size="4" face="Calibri">./vol.py dlllist 
+			--profile=WinXPSP3x86 -f images/stuxnet/stuxnet.vmem | grep ASLR &gt; 
+			images/stuxnet/output/aslr.txt</font></li>
+			<li><font size="4" face="Calibri">ls -l images/stuxnet/output/aslr.txt</font></li>
+		</ol>
+		<li><b><font color="#0000FF" face="Courier New">Note(FYI):</font></b><font color="#0000FF"></font></li><font color="#0000FF">
+		</font>
+		<ul>
+			<li><font face="Courier New">Step 1 displays the Stuxnet specially crafted 
+			files designed to bypass the ASRL.</font></li>
+		</ul>
+		
+		<li><img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/index_007.jpg" border="0"></li>
+	</ul></li>
+</ol>
+		<p>&nbsp;</p>
+		<table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tbody><tr>
+				<td bgcolor="#336699"><b>
+				<font color="#FFFFFF" size="4" face="Arial">Section 9. Using ldrmodules to find hidden DLLs</font></b></td>
+			</tr>
+		</tbody></table>
+<ol>
+	<li><font face="Courier New">Using ldrmodules to find hidden DLLs</font><ul>
+		<li><b><font color="#0000FF" face="Courier New">Note(FYI):</font></b><font color="#0000FF"></font></li><font color="#0000FF">
+		</font>
+		<ul>
+			<li><font face="Courier New">There are many ways to hide a DLL. One 
+			of the ways involves unlinking the DLL from one (or all) of the 
+			linked lists in the PEB (Process Enviroment Block). However, when 
+			this is done, there is still information contained within the VAD 
+			(Virtual Address Descriptor) which identifies the base address of 
+			the DLL and its full path on disk. To cross-reference this 
+			information (known as memory mapped files) with the 3 PEB lists, use 
+			the ldrmodules command. For each memory mapped Portable Executable 
+			(PE) file, the ldrmodules command prints a 0 or a 1 if the PE exists 
+			in the PEB lists. [3]</font></li>
+		</ul>
+	</ul>&nbsp;</li>
+	<li><font face="Courier New">Using ldrmodules</font><ul>
+		<li><b><font color="#FF0000" face="Courier New">Instructions</font></b></li>
+		<ol>
+			<li><font size="4" face="Calibri">./vol.py ldrmodules -p 680 
+			--profile=WinXPSP3x86 -f images/stuxnet/stuxnet.vmem</font><ul>
+				<li><font size="4" face="Courier New">This is normal.</font></li>
+			</ul>
+			</li>
+			<li><font size="4" face="Calibri">./vol.py ldrmodules -p 868 
+			--profile=WinXPSP3x86 -f images/stuxnet/stuxnet.vmem</font><ul>
+				<li><font size="4" face="Courier New">Notice the lines 
+				identified by the word "Problem".</font></li>
+			</ul>
+			</li>
+			<li><font face="Calibri">./vol.py ldrmodules -p 1928 
+			--profile=WinXPSP3x86 -f images/stuxnet/stuxnet.vmem | egrep '(Pid|-$)'</font></li>
+		</ol>
+		<li><b><font color="#0000FF" face="Courier New">Note(FYI):</font></b><font color="#0000FF"></font></li><font color="#0000FF">
+		</font>
+		<ul>
+			<li><font face="Courier New">The lines identified as a problem are 
+			either suspicious because an entry is missing from one of the PEB 
+			(Process Enviroment Block) lists or because the path name is blank.</font></li>
+		</ul>
+		
+		<li><img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/index_012.jpg" border="0"></li>
+	</ul></li>
+</ol>
+		<p>&nbsp;</p>
+		<table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tbody><tr>
+				<td bgcolor="#336699"><b>
+				<font color="#FFFFFF" size="4" face="Arial">Section 10. Using procexedump to dump process executables</font></b></td>
+			</tr>
+		</tbody></table>
+<ol>
+	<li><font face="Courier New">Using procexedump to dump process executables</font><ul>
+		<li><b><font color="#0000FF" face="Courier New">Note(FYI):</font></b><font color="#0000FF"></font></li><font color="#0000FF">
+		</font>
+		<ul>
+			<li><font face="Courier New">To dump a process's executable (not 
+			including the slack space), use the procexedump command. </font>
+			</li>
+		</ul>
+		<p>&nbsp;
+	</p></ul>
+	</li>
+	<li><font face="Courier New">Using procexedump</font><ul>
+		<li><b><font color="#FF0000" face="Courier New">Instructions</font></b></li>
+		<ol>
+			<li><font size="4" face="Calibri">./vol.py procexedump -p 
+			680,868,1928 -D images/stuxnet/output/ --profile=WinXPSP3x86 -f 
+			images/stuxnet/stuxnet.vmem</font></li>
+			<li><font size="4" face="Calibri">ls -l images/stuxnet/output/*.exe</font></li>
+		</ol>
+		<li><img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/index_011.jpg" border="0"></li>
+	</ul>
+	<p>&nbsp;</p></li>
+	<li><font face="Courier New">Looking at Malicious Hooks</font><ul>
+		<li><b><font color="#FF0000" face="Courier New">Instructions</font></b></li>
+		<ol>
+			<li><font face="Courier New">strings images/stuxnet/output/executable.868.exe 
+			| more</font></li>
+		</ol>
+		<li><b><font color="#0000FF" face="Courier New">Note(FYI):</font></b><font color="#0000FF"></font></li><font color="#0000FF">
+		</font>
+		<ul>
+			<li><font face="Courier New">The below example is the second type of 
+			code injection used by Stuxnet. The names of the APIs inside of the 
+			red rectangle are the ones hooked by the malware PID 868. [3].</font></li>
+			<li><font size="4" face="Calibri">
+			<a target="_blank" href="http://blogs.technet.com/b/markrussinovich/archive/2011/03/30/3416253.aspx">Analyzing a Stuxnet Infection with the Sysinternals Tools, Part I</a>, </font>
+			<font face="Courier New">See Page 13. </font></li>
+		</ul>
+		
+		<li><img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/index_013.jpg" border="0"></li>
+	</ul></li>
+</ol>
+		<p>&nbsp;</p>
+		<table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tbody><tr>
+				<td bgcolor="#336699"><b>
+				<font color="#FFFFFF" size="4" face="Arial">Section 11. Proof of 
+				Lab</font></b></td>
+			</tr>
+		</tbody></table>
+<ol>
+	<li><font face="Courier New">Proof of Lab</font><ul>
+		<li><b><font face="Courier New"><span style="background-color: #FFFF00">
+		Proof Of Lab Instructions:</span></font></b><ol>
+			<li><font face="Courier New">Do a PrtScn of the below commands</font></li>
+			<li><font face="Courier New">Paste into a word document</font></li>
+			<li><font face="Courier New">Upload to Moodle</font></li>
+		</ol>
+		</li>
+		<li><b><font color="#FF0000" face="Courier New">Instructions</font></b><ol>
+			<li><font face="Courier New">cd /pentest/forensics/volatility-2.2/images/stuxnet/output</font></li>
+			<li><font face="Courier New">ls -lrts</font></li>
+			<li><font face="Courier New">date</font></li>
+			<li><font face="Courier New">echo "Your Name"</font><ul>
+				<li><font face="Courier New">Put in your actual name in place of 
+				"Your Name"</font></li>
+				<li><font face="Courier New">e.g., echo "John Gray"</font></li>
+			</ul>
+			</li>
+		</ol>
+		</li>
+		<li><img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/index_003.jpg" border="0"></li>
+	</ul>
+	</li>
+</ol>
+<p>&nbsp;</p></td>
+		<td style="border-left-style: solid; border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px" bordercolor="#EFEFEF" align="center" valign="top" width="19%">
+<!-- AMAZON:BOOKLIST:START -->
+
+<br>
+<!-- PAYPAL_BUTTON:START:v2 -->
+<center>
+<a target="_blank" href="https://www.facebook.com/hackingd0"><img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/facebook.png" border="0" height="31" width="29"></a><a target="_blank" href="https://twitter.com/HKD_student"><img src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/twitter.png" border="0" height="31" width="29"></a>
+
+<p>
+
+</p><form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+<input name="cmd" value="_s-xclick" type="hidden">
+<input name="hosted_button_id" value="HRUHDSHD6RPKJ" type="hidden">
+<input src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/btn_donate_SM.gif" name="submit" alt="PayPal - The safer, easier way to pay online!" border="0" type="image">
+<img alt="" src="Volatility%202.2%20%20Lesson%202%20%20Analyzing%20Stuxnet_files/pixel.gif" border="0" height="1" width="1">
+<br>
+<font style="font-size: 7pt" face="Trebuchet MS">Help </font><b>
+<font style="font-size: 7pt" face="Trebuchet MS">C</font><font style="font-size: 7pt" color="#336699" face="Trebuchet MS">omputer</font><font style="font-size: 7pt" face="Trebuchet MS">S</font><font style="font-size: 7pt" color="#336699" face="Trebuchet MS">ecurity</font><font style="font-size: 7pt" face="Trebuchet MS">S</font><font style="font-size: 7pt" color="#336699" face="Trebuchet MS">tudent</font></b><font style="font-size: 7pt" face="Trebuchet MS"> <br>pay for continued research, <br>resources &amp; bandwidth</font><p></p>
+</form>
+<p>
+</p></center>
+<!-- PAYPAL_BUTTON:END -->
+<!-- AMAZON:BOOKLIST:STOP -->
+
+<p>&nbsp;&nbsp;
+		
+		
+		</p></td>
+	</tr>
+</tbody></table>
+
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+
+
+
+</body></html>
+<!-- PAGE_HID:e3327d4d883655336eaa23758dc851ab -->
